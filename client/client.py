@@ -35,7 +35,7 @@ class VideoTranslationClient:
             response.raise_for_status()
             return response.json().get("job_id")
         except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to start translation. \nERROR: {e}")
+            logging.error(f"Failed to start video translation. \nERROR: {e}")
             return None
 
     async def async_get_status(self, job_id):
@@ -57,7 +57,7 @@ class VideoTranslationClient:
 
         url = f"{self.base_url}/status/{job_id}"
         retries = 0
-        logging.info("Please wait while we translate the video asynchronously...")
+        logging.info("Please wait while we translate the video ...")
         async with aiohttp.ClientSession() as session:
             while retries < self.max_retries:
                 try:
@@ -68,10 +68,10 @@ class VideoTranslationClient:
                             return result.get("result")
                         else:
                             delay = self.backoff_factor * (2 ** retries)
-                            logging.info(f"Async status: {result.get("result")}. Status check {retries + 1}. Waiting {delay} seconds before next status check.")
+                            logging.info(f"UUID {job_id} status: {result.get("result")}. Status check {retries + 1}. Waiting {delay} seconds before next status check.")
                             await asyncio.sleep(delay)
                             retries += 1
                 except aiohttp.ClientError as e:
-                    logging.error(f"Async error: {e}")
+                    logging.error(f"Error: {e}")
                     return "server offline"
             return "pending"
